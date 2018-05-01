@@ -85,9 +85,6 @@ public class MainActivity extends AppCompatActivity {
     byte[] dataFromSerial;
     byte[] dataFromClient= new byte[5];
 
-    //variables sockets
-    private final int PORT = 8080; //Puerto para la conexión
-    private final String HOST = "127.0.0.1"; //localhost
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -101,15 +98,19 @@ public class MainActivity extends AppCompatActivity {
                     serialPort = UsbSerialDevice.createUsbSerialDevice(device, connection);
                     if (serialPort != null) {
                         if (serialPort.open()) {
-                            serialPort.setBaudRate(9600);
+                            serialPort.setBaudRate(115200);
                             serialPort.setDataBits(UsbSerialInterface.DATA_BITS_8);
                             serialPort.setStopBits(UsbSerialInterface.STOP_BITS_1);
                             serialPort.setParity(UsbSerialInterface.PARITY_NONE);
                             serialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
                             serialPort.read(mCallback);
-                            Toast toast2 = Toast.makeText(MainActivity.this, "Serial port opened", Toast.LENGTH_SHORT);
-                            toast2.show();
 
+                            setSLconnectCheckBox(true);
+
+
+    /*                        Toast toast2 = Toast.makeText(MainActivity.this, "Serial port opened", Toast.LENGTH_SHORT);
+                            toast2.show();
+*/
 
                         } else {
                             Log.d("SERIAL", "PORT NOT OPEN");
@@ -128,12 +129,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
-
-
-
-
-
 
         TextView ll = (TextView) findViewById(R.id.textView_LOG);
         if (ll != null) {
@@ -205,10 +200,10 @@ public class MainActivity extends AppCompatActivity {
                                 sbj = null;
                                 sb = null;
                                 imprimirln("LISTEN ON "+IPPORT);
-                                Socket cliente = sk.accept();
+//                                setIPconnectCheckBox(false);
+//                                Socket cliente = sk.accept();
 
                                 imprimirln("new conection");
-
 
                                 setIPconnectCheckBox(true);
 
@@ -219,22 +214,25 @@ public class MainActivity extends AppCompatActivity {
                                         new OutputStreamWriter(cliente.getOutputStream()), true);
 
                                 while(cliente.isConnected()) {
+
                                     String line=null;
                                     sb=new StringBuilder();
                                     try {
                                         do {
+                                           imprimirln("1");
                                             line=entrada.readLine();
-                                            sb.append(line + "\n");
-                                            //hacking
+                                            sb.append( line);
+                                            imprimirln("S" + sb);
 
-                                            System.out.println("S" + sb);
+ñññ                                            writeToSerial(dataFromClient);
+
                                         }
                                         while (entrada.ready());
                                     } catch (IOException e1) {
                                         e1.printStackTrace();
                                     }
                                 }
-                                cliente.close();
+
                             }
                             Thread.sleep(1000);
 
@@ -269,22 +267,22 @@ public class MainActivity extends AppCompatActivity {
 
                             while(socket.isConnected()) {
 
-                                if (connect)
+                                if (!connect)
                                 {
                                         imprimirln("Cerrando el socket por cliente");
                                         socket.close();
                                         continue;
                                 }
-                                    imprimirln("socketabierto");
+                                    //imprimirln("socketabierto");
                                     PrintWriter out=new PrintWriter(new BufferedWriter(
                                         new OutputStreamWriter(socket.getOutputStream())), true);
                                         imprimirln("C GET");
-                                    out.print("GET \r\n");
+                                        out.println("GET ");
                                         out.flush();
-                                        out.close();
+
 
                                 try {
-                                    Thread.sleep(3000);
+                                    Thread.sleep(30000);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
@@ -320,43 +318,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }).start();
-/*
-Socket socket;
-    String res;
-    try {
-
-
-
-        final String EndPoint="/iot/d?"+"k="+apikey+"&i="+device+"&d="+Attribute+"|"+Value;
-
-
-
-        InetAddress serverAddr = InetAddress.getByName(ServerName);
-        socket = new Socket(serverAddr, port);
-        if (socket.isConnected()) {
-            PrintWriter out = new PrintWriter(new BufferedWriter(
-                    new OutputStreamWriter(socket.getOutputStream())),true);
-            out.print("GET "+EndPoint+" HTTP/1.1\r\n");
-            out.print("Host: "+IP+"\r\n");
-            out.print("Connection: keep-alive\r\n");
-
-            out.print("\r\n\r\n");
-            out.flush();
-            out.close();
-            socket.close();
-
-        }
-        else res="Imposible abrir socket";
-
-
-    } catch (UnknownHostException e1) {
-        e1.printStackTrace();
-    } catch (IOException e1) {
-        e1.printStackTrace();
-    }
-    return "";
-
-*/
 
         Button BotonConnect = (Button) findViewById(R.id.button_Connect);
         BotonConnect.setOnClickListener(new View.OnClickListener() {
@@ -377,11 +338,6 @@ Socket socket;
 
             ;
         });
-
-
-
-
-
 
         joystickData[0]=0x2A;
 
@@ -493,12 +449,12 @@ Socket socket;
 
                                 while (true) {
 
-                                    if (( input.read(dataFromClient, 0, 5)) == 5 ) //Mientras haya mensajes desde el cliente
-                                    {
+//                                    if (( input.read(dataFromClient, 0, 5)) == 5 ) //Mientras haya mensajes desde el cliente
+//                                    {
                                         writeToSerial(dataFromClient);
                                     }
-
-                                    if (messagesAvailableFromSerial == true) sendToClient();
+//
+//                                    if (messagesAvailableFromSerial == true) sendToClient();
 
                                 }
 
@@ -699,9 +655,8 @@ Socket socket;
         public void onReceivedData(byte[] arg0)
         {
 
-            send.lock();
-            dataFromSerial=arg0;
-            messagesAvailableFromSerial= true;
+          String st=new String(arg0);
+          imprimirln(st);
 
         }
 
@@ -854,6 +809,17 @@ Socket socket;
         runOnUiThread(new Runnable() {
             public void run() {
                 CheckBox cb=(CheckBox) findViewById(R.id.checkBox_IP);
+                cb.setChecked(status);
+            }
+
+        });
+
+    }
+
+    public void setSLconnectCheckBox(boolean SLconnectCheckBox) {
+        runOnUiThread(new Runnable() {
+            public void run() {
+                CheckBox cb=(CheckBox) findViewById(R.id.checkBox_SL);
                 cb.setChecked(status);
             }
 
