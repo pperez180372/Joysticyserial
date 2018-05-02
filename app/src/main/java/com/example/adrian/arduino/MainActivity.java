@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     // connect
     boolean connect=false;
 
+    public View Vista;
 
     UsbDevice device;
     UsbDeviceConnection connection;
@@ -107,8 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
                             setSLconnectCheckBox(true);
 
-
-    /*                        Toast toast2 = Toast.makeText(MainActivity.this, "Serial port opened", Toast.LENGTH_SHORT);
+                            /*                        Toast toast2 = Toast.makeText(MainActivity.this, "Serial port opened", Toast.LENGTH_SHORT);
                             toast2.show();
 */
 
@@ -127,6 +127,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Vista=this.findViewById(android.R.id.content).getRootView();
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
@@ -186,6 +188,9 @@ public class MainActivity extends AppCompatActivity {
         ).start();
 
 // thread servidor
+
+
+
         new Thread(new Runnable() {
             public void run() {
 
@@ -200,8 +205,9 @@ public class MainActivity extends AppCompatActivity {
                                 sbj = null;
                                 sb = null;
                                 imprimirln("LISTEN ON "+IPPORT);
-//                                setIPconnectCheckBox(false);
-//                                Socket cliente = sk.accept();
+                                setIPconnectCheckBox(false);
+
+                                Socket cliente = sk.accept();
 
                                 imprimirln("new conection");
 
@@ -219,12 +225,11 @@ public class MainActivity extends AppCompatActivity {
                                     sb=new StringBuilder();
                                     try {
                                         do {
-                                           imprimirln("1");
+                                          //  imprimirln("1");
                                             line=entrada.readLine();
-                                            sb.append( line);
-                                            imprimirln("S" + sb);
-
-ñññ                                            writeToSerial(dataFromClient);
+                                            imprimirln("  "+line);
+                                            imprimirln("g "+printHex(scanHex(line)));
+                                            writeToSerial(("S" + sb).getBytes());
 
                                         }
                                         while (entrada.ready());
@@ -276,13 +281,13 @@ public class MainActivity extends AppCompatActivity {
                                     //imprimirln("socketabierto");
                                     PrintWriter out=new PrintWriter(new BufferedWriter(
                                         new OutputStreamWriter(socket.getOutputStream())), true);
-                                        imprimirln("C GET");
-                                        out.println("GET ");
+
+                                        out.println(printHex(joystickData));
                                         out.flush();
 
 
                                 try {
-                                    Thread.sleep(30000);
+                                    Thread.sleep(3000);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
@@ -318,6 +323,30 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }).start();
+
+        // thread apertura serial
+
+        new Thread(new Runnable() {
+            public void run() {
+
+                while (true) {
+
+                               start(Vista);
+
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+
+                    }
+                    }
+
+        }).start();
+
+
+
+
 
         Button BotonConnect = (Button) findViewById(R.id.button_Connect);
         BotonConnect.setOnClickListener(new View.OnClickListener() {
@@ -411,218 +440,8 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-/*
-        Button toggle = (Button) findViewById(R.id.button_Connect);
-        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    Thread server= new Thread(new Runnable() {
-                        DataOutputStream output; //Flujo de datos de salida
-                        Socket clientsocket;
-                        ServerSocket serversocket;
-
-                        DataInputStream input;
-
-                        public void sendToClient(){
-                            try {
-                                output.write( dataFromSerial);
-                                messagesAvailableFromSerial = false;
-                                send.unlock();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-                        @Override
-                        public void run() {
-                            try  {
-
-                                serversocket = new ServerSocket();//Se crea el socket para el servidor
-                                serversocket.bind(new InetSocketAddress(HOST, PORT)); //se asigna el socket a localhost y puerto 8080
-
-                                //Socket para el cliente
-                                clientsocket = serversocket.accept(); //Accept comienza el socket y espera una conexión desde un cliente
-
-                                //Se obtiene el flujo entrante desde el cliente
-                                input = new DataInputStream(clientsocket.getInputStream());
-                                output = new DataOutputStream(clientsocket.getOutputStream());
-
-                                while (true) {
-
-//                                    if (( input.read(dataFromClient, 0, 5)) == 5 ) //Mientras haya mensajes desde el cliente
-//                                    {
-                                        writeToSerial(dataFromClient);
-                                    }
-//
-//                                    if (messagesAvailableFromSerial == true) sendToClient();
-
-                                }
-
-                            } catch (IOException e1) {
-                            }
-                        }
-                    });
-                    server.start();
-
-                } else {
-                    Thread cliente = new Thread(new Runnable() {
-                        private DataOutputStream output; //Flujo de datos de salida
-                        private Socket cs;
-                        private Scanner input;
-                        @Override
-                        public void run() {
-                            try  {
-                                final TextView tv = findViewById(R.id.IP);
-                                Thread.sleep(1000);
-
-                                cs = new Socket(HOST,PORT); //se conecta el cliente a localhost y puerto 8080
-
-                                //Flujo de entrada al cliente
-                                input = new Scanner(cs.getInputStream());
-
-                                //Flujo de datos hacia el servidor
-                                output = new DataOutputStream(cs.getOutputStream());
-
-                                new Thread( new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        while(true){
-                                            if(input.hasNextLine()){
-                                                runOnUiThread(new Runnable() {
-                                                    public void run() {
-                                                        tv.append(input.nextLine()+"\n");
-                                                    }
-                                                });
-                                            }
-                                        }
-                                    }
-                                }).start();
-
-                                while (true) {
-
-                                    //Se escribe en el servidor usando su flujo de datos
-                                    output.write(joystickData);
-                                    Thread.sleep(20); //Pequeño delay opcional
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                    cliente.start();
-
-                }
-            }
-        });
-
-*/
 
 
-/*
-
-        ToggleButton toggle = (ToggleButton) findViewById(R.id.buttonCS);
-        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    Thread server= new Thread(new Runnable() {
-                        DataOutputStream output; //Flujo de datos de salida
-                        Socket clientsocket;
-                        ServerSocket serversocket;
-
-                        DataInputStream input;
-
-                        public void sendToClient(){
-                            try {
-                                output.write( dataFromSerial);
-                                messagesAvailableFromSerial = false;
-                                send.unlock();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-                        @Override
-                        public void run() {
-                            try  {
-
-                                serversocket = new ServerSocket();//Se crea el socket para el servidor
-                                serversocket.bind(new InetSocketAddress(HOST, PORT)); //se asigna el socket a localhost y puerto 8080
-
-                                //Socket para el cliente
-                                clientsocket = serversocket.accept(); //Accept comienza el socket y espera una conexión desde un cliente
-
-                                //Se obtiene el flujo entrante desde el cliente
-                                input = new DataInputStream(clientsocket.getInputStream());
-                                output = new DataOutputStream(clientsocket.getOutputStream());
-
-                                while (true) {
-
-                                    if (( input.read(dataFromClient, 0, 5)) == 5 ) //Mientras haya mensajes desde el cliente
-                                    {
-                                        writeToSerial(dataFromClient);
-                                    }
-
-                                    if (messagesAvailableFromSerial == true) sendToClient();
-
-                                }
-
-                            } catch (IOException e1) {
-                            }
-                        }
-                    });
-                    server.start();
-                    
-                } else {
-                    Thread cliente = new Thread(new Runnable() {
-                        private DataOutputStream output; //Flujo de datos de salida
-                        private Socket cs;
-                        private Scanner input;
-                        @Override
-                        public void run() {
-                            try  {
-                                final TextView tv = findViewById(R.id.IP);
-                                Thread.sleep(1000);
-
-                                cs = new Socket(HOST,PORT); //se conecta el cliente a localhost y puerto 8080
-
-                                //Flujo de entrada al cliente
-                                input = new Scanner(cs.getInputStream());
-
-                                //Flujo de datos hacia el servidor
-                                output = new DataOutputStream(cs.getOutputStream());
-
-                                new Thread( new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        while(true){
-                                            if(input.hasNextLine()){
-                                                runOnUiThread(new Runnable() {
-                                                    public void run() {
-                                                        tv.append(input.nextLine()+"\n");
-                                                    }
-                                                });
-                                            }
-                                        }
-                                    }
-                                }).start();
-
-                                while (true) {
-
-                                    //Se escribe en el servidor usando su flujo de datos
-                                    output.write(joystickData);
-                                    Thread.sleep(20); //Pequeño delay opcional
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                    cliente.start();
-
-                }
-            }
-        });
-*/
 
     }
 
@@ -635,6 +454,17 @@ public class MainActivity extends AppCompatActivity {
         sb.append("]");
         return sb.toString();
     }
+    public static byte[]  scanHex(String cad) {
+
+        byte[] v = new byte[cad.length()/2];
+        for (int t=0;t<v.length;t++) {
+            String g=cad.substring(t*2+1,(t+1)*2+1);
+            v[t]=(byte) Integer.parseInt(g,16);
+
+        }
+        return v;
+    }
+
 
     public void writeToSerial(byte[] data)  {
         try {
@@ -664,11 +494,11 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
     public void start(View view)
      {
          if (serialPort == null) {
              usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-
              HashMap<String, UsbDevice> usbDevices = usbManager.getDeviceList();
              if (!usbDevices.isEmpty()) {
                  boolean keep = true;
@@ -677,12 +507,10 @@ public class MainActivity extends AppCompatActivity {
                          usbManager.requestPermission(device, pendingIntent);
                          keep = false;
 
-                     if (!keep)
-                         break;
+                     if (!keep) break;
                  }
              }
          }
-
 
      }
 
@@ -783,8 +611,18 @@ public class MainActivity extends AppCompatActivity {
 
         runOnUiThread(new Runnable() {
             public void run() {
+
                 TextView ll = (TextView) findViewById(id);
-                if (ll != null) ll.setText(cad);
+                if (ll != null) {ll.setGravity(Gravity.LEFT);
+                                 ll.setText(cad);}
+                ScrollView ll1 = (ScrollView) findViewById(R.id.scrollView);
+                if (ll1 != null) {
+                    ll1.fullScroll(View.FOCUS_DOWN);
+
+                }
+
+
+
             }
         });
     }
@@ -793,6 +631,8 @@ public class MainActivity extends AppCompatActivity {
         final String g = cad;
 
         LOG=LOG+cad;
+        if (LOG.length()>500)
+            LOG=LOG.substring(100,LOG.length());
         ponTextoTextView(LOG,R.id.textView_LOG);
 
     }
@@ -816,7 +656,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void setSLconnectCheckBox(boolean SLconnectCheckBox) {
+    public void setSLconnectCheckBox(final boolean status) {
         runOnUiThread(new Runnable() {
             public void run() {
                 CheckBox cb=(CheckBox) findViewById(R.id.checkBox_SL);
