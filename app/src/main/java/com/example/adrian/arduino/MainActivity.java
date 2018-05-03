@@ -20,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     ReentrantLock send = new ReentrantLock();
 
     //byte[] joystickData= new byte[5];
-    byte joystickData[] = new byte[5];
+    byte joystickData[] = new byte[6];
     boolean messagesAvailableFromSerial=false;
     byte[] dataFromSerial;
     byte[] dataFromClient= new byte[5];
@@ -227,9 +228,9 @@ public class MainActivity extends AppCompatActivity {
                                         do {
                                           //  imprimirln("1");
                                             line=entrada.readLine();
-                                            imprimirln("  "+line);
-                                            imprimirln("g "+printHex(scanHex(line)));
-                                            writeToSerial(("S" + sb).getBytes());
+                                            //imprimirln("  "+line);
+                                            //imprimirln("g "+printHex(scanHex(line)));
+                                            writeToSerial(scanHex(line));
 
                                         }
                                         while (entrada.ready());
@@ -267,8 +268,10 @@ public class MainActivity extends AppCompatActivity {
                     while(connect) {
 
                         try {
-
-                            socket = new Socket(IPL, IPPORT);
+                            EditText et = (EditText) findViewById(R.id.textView_IP);
+                            InetAddress lo=InetAddress.getByName(et.getText().toString());
+                            imprimirln(lo.getHostName());// int puerto_de_escucha
+                            socket = new Socket(lo, IPPORT);
 
                             while(socket.isConnected()) {
 
@@ -287,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                                 try {
-                                    Thread.sleep(3000);
+                                    Thread.sleep(100);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
@@ -431,6 +434,7 @@ public class MainActivity extends AppCompatActivity {
                 joystickData[2]=(byte)channel2;
                 joystickData[3]=(byte)channel3;
                 joystickData[4]=(byte)channel4;
+                joystickData[5]=(byte)0;
                 joy1.unlock();
                 joy2.unlock();
                 //write(data);
@@ -456,9 +460,10 @@ public class MainActivity extends AppCompatActivity {
     }
     public static byte[]  scanHex(String cad) {
 
-        byte[] v = new byte[cad.length()/2];
-        for (int t=0;t<v.length;t++) {
-            String g=cad.substring(t*2+1,(t+1)*2+1);
+        byte[] v = new byte[6];
+        for (int t=0;t<6;t++) {
+            String g=cad.substring(t*5+4,(t+1)*5+1);
+            //System.out.println(g);
             v[t]=(byte) Integer.parseInt(g,16);
 
         }
