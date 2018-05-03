@@ -75,7 +75,7 @@
         <ScrollView
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
-            android:layout_height="200px"
+            android:layout_height="360px"
             android:layout_margin="1dp"
             android:singleLine="false">
 
@@ -126,25 +126,45 @@
 
 
 
-        <LinearLayout
-            android:background="@drawable/border"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_margin="1dp"
-            >
+
+    </LinearLayout>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:background="@drawable/border"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="1dp"
+        app:layout_constraintBottom_toTopOf="@+id/view2"
+        app:layout_constraintEnd_toEndOf="parent"
+        >
 
 
         <SeekBar
-            android:id="@+id/seekBar"
+            android:id="@+id/seekBar_flightmode"
             style="@style/Widget.AppCompat.SeekBar.Discrete"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:max="10"
-            android:progress="3" />
+            android:max="6"
+            android:progress="0" />
+
+
 
 
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/view2"
+        android:background="@drawable/border"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="1dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        >
     <io.github.controlwear.virtual.joystick.android.JoystickView
         android:id="@+id/joystick2"
         android:layout_width="167dp"
@@ -179,81 +199,13 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
 
-        app:layout_constraintVertical_bias="0.829" />
-        android:windowSoftInputMode="stateHidden|adjustResize">
+        app:layout_constraintVertical_bias="0.829"
+        />
     </LinearLayout>
-    </LinearLayout>
-
 
         </android.support.constraint.ConstraintLayout>
 
 
-    <!--Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:onClick="start"
-        android:text="Start Serial"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/button3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
-        android:onClick="end"
-        android:text="End Serial"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/console"
-        android:layout_width="match_parent"
-        android:layout_height="114dp"
-        android:layout_marginBottom="328dp"
-        android:layout_marginEnd="6dp"
-        android:layout_marginStart="6dp"
-        android:ems="10"
-        android:inputType="textMultiLine"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.876"
-        app:layout_constraintStart_toEndOf="@id/joystick" />
-
-
-    <ToggleButton
-        android:id="@+id/toggleButton2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="ToggleButton"
-        tools:layout_editor_absoluteX="41dp"
-        tools:layout_editor_absoluteY="115dp" />
-
-    <Tex tView
-        android:id="@+id/textIp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        tools:layout_editor_absoluteX="209dp"
-        tools:layout_editor_absoluteY="133dp" />
-
-    <Button
-        android:id="@+id/buttonConexion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@android:color/holo_red_light"
-        android:clickable="false"
-        android:text="Disconected"
-        app:layout_constraintBottom_toTopOf="@id/console"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.887"
-        app:layout_constraintStart_toEndOf="@id/textIp"
-        app:layout_constraintTop_toBottomOf="@id/button3"
-        app:layout_constraintVertical_bias="0.232" /-->
 
 

@@ -23,6 +23,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -76,7 +77,8 @@ public class MainActivity extends AppCompatActivity {
     UsbManager usbManager;
     UsbSerialDevice serialPort;
     PendingIntent pendingIntent;
-    int channel1 =127, channel2 =127, channel3=127, channel4 =127;
+    int channel1 =127, channel2 =127, channel3=127, channel4 =127, channel5=127;
+
     ReentrantLock joy1 = new ReentrantLock();
     ReentrantLock joy2 = new ReentrantLock();
     ReentrantLock send = new ReentrantLock();
@@ -348,7 +350,26 @@ public class MainActivity extends AppCompatActivity {
         }).start();
 
 
+        SeekBar sk=(SeekBar) findViewById(R.id.seekBar_flightmode);
+        sk.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+                // TODO Auto-generated method stub
+                channel5=progress*0xff/6;
+
+            }
+        });
 
 
         Button BotonConnect = (Button) findViewById(R.id.button_Connect);

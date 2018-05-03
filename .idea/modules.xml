@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Joysticyserial.iml" filepath="$PROJECT_DIR$/Joysticyserial.iml" />
+      <module fileurl="file://C:\Users\ppere\AndroidStudioProjects\Joysticyserial\Joysticyserial.iml" filepath="C:\Users\ppere\AndroidStudioProjects\Joysticyserial\Joysticyserial.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
