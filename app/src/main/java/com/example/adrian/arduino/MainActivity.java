@@ -366,7 +366,28 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
                 // TODO Auto-generated method stub
-                channel5=progress*0xff/6;
+                float max=2100;
+                float min=900;
+                float step=(float) ((2100.0-900.0)/255.0);
+                float f2=(330+65)/step;
+                //00 es 900
+                //FF es 2100
+                //0xFF es 1200 + 900 fijos
+                // 0xFF*130/1200 130 es ca escalon
+                //1230-900= 0xFF*330/1200
+                //0-1230 flight mode 1 --> 00;
+                //-1360 fight mode 2 --> (0x00+1200/FF*) escogemos 1295 la mitad del rango
+                switch (progress)
+                {
+                    case 1: channel5=0x00; break;// 900
+                    case 2: channel5=(int) (395.0/step); break; // 900+395 --> 1295
+                    case 3: channel5=(int) ((395.0+130.0*1)/step); break; // 900+395 --> 1295
+                    case 4: channel5=(int) ((395.0+130.0*2)/step); break; // 900+395 --> 1295
+                    case 5: channel5=(int) ((395.0+130.0*3)/step); break; // 900+395 --> 1295
+                    case 6: channel5=(int) ((395.0+130.0*4)/step); break; // 900+395 --> 1295
+                 }
+
+
 
             }
         });

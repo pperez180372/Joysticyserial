@@ -147,8 +147,9 @@
             style="@style/Widget.AppCompat.SeekBar.Discrete"
             android:layout_width="match_parent"
             android:layout_height="40dp"
+            android:min="1"
             android:max="6"
-            android:progress="0" />
+            android:progress="1" />
 
 
 
