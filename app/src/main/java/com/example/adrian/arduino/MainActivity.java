@@ -417,6 +417,7 @@ public class MainActivity extends AppCompatActivity {
 
         JoystickView joystick = (JoystickView) findViewById(R.id.joystick);
 
+
         joystick.setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
             public void onMove(int angle, int strength) {
@@ -456,7 +457,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        joystick2.setAutoReCenterButton(false);
 
         pendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
         IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
