@@ -10,10 +10,12 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.os.Handler;
 import android.os.ParcelUuid;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
@@ -230,7 +232,35 @@ public class MainActivity extends AppCompatActivity {
                                         do {
                                           //  imprimirln("1");
                                             line=entrada.readLine();
-                                            //imprimirln("  "+line);
+
+                                            imprimirln("  "+line);
+
+                                            final String finalLine = line;
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    JoystickView tv = (JoystickView) findViewById(R.id.joystick);
+                                                    tv.putButtonPosition(scanHex(finalLine)[2],scanHex(finalLine)[1]);
+                                                    tv = (JoystickView) findViewById(R.id.joystick2);
+                                                    tv.putButtonPosition(scanHex(finalLine)[4],scanHex(finalLine)[3]); }
+
+                                            });
+
+                                            SeekBar tv1 = (SeekBar) findViewById(R.id.seekBar_flightmode);
+
+                                            int incx;
+                                                    byte valx;
+
+                                            valx=scanHex(finalLine)[5];
+                                            incx=0;
+                                            if (valx<0)  incx=256+(int)valx;
+                                            else
+                                                incx = (int)valx;
+
+
+                                            tv1.setProgress((int) (incx/255.0*6.0+0.5));
+
+                                            //joystickData scanHex(line);
                                             //imprimirln("g "+printHex(scanHex(line)));
                                             writeToSerial(scanHex(line));
 
@@ -275,17 +305,24 @@ public class MainActivity extends AppCompatActivity {
                             imprimirln(lo.getHostName());// int puerto_de_escucha
                             socket = new Socket(lo, IPPORT);
 
+                            PrintWriter out=new PrintWriter(new BufferedWriter(
+                                    new OutputStreamWriter(socket.getOutputStream())), true);
+
                             while(socket.isConnected()) {
+                                setIPconnectCheckBox(true);
 
                                 if (!connect)
                                 {
+                                        setIPconnectCheckBox(false);
+
                                         imprimirln("Cerrando el socket por cliente");
                                         socket.close();
                                         continue;
                                 }
+
+
+
                                     //imprimirln("socketabierto");
-                                    PrintWriter out=new PrintWriter(new BufferedWriter(
-                                        new OutputStreamWriter(socket.getOutputStream())), true);
 
                                         out.println(printHex(joystickData));
                                         out.flush();
@@ -377,15 +414,7 @@ public class MainActivity extends AppCompatActivity {
                 //1230-900= 0xFF*330/1200
                 //0-1230 flight mode 1 --> 00;
                 //-1360 fight mode 2 --> (0x00+1200/FF*) escogemos 1295 la mitad del rango
-                switch (progress)
-                {
-                    case 1: channel5=0x00; break;// 900
-                    case 2: channel5=(int) (395.0/step); break; // 900+395 --> 1295
-                    case 3: channel5=(int) ((395.0+130.0*1)/step); break; // 900+395 --> 1295
-                    case 4: channel5=(int) ((395.0+130.0*2)/step); break; // 900+395 --> 1295
-                    case 5: channel5=(int) ((395.0+130.0*3)/step); break; // 900+395 --> 1295
-                    case 6: channel5=(int) ((395.0+130.0*4)/step); break; // 900+395 --> 1295
-                 }
+                channel5= (int) (progress*255.0/6.0);
 
 
 
@@ -438,7 +467,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         JoystickView joystick2 = (JoystickView) findViewById(R.id.joystick2);
-
+        joystick2.setFixedCenter(true);
         joystick2.setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
             public void onMove(int angle, int strength) {
@@ -477,7 +506,7 @@ public class MainActivity extends AppCompatActivity {
                 joystickData[2]=(byte)channel2;
                 joystickData[3]=(byte)channel3;
                 joystickData[4]=(byte)channel4;
-                joystickData[5]=(byte)0;
+                joystickData[5]=(byte)channel5;
                 joy1.unlock();
                 joy2.unlock();
                 //write(data);
